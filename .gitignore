@@ -1,0 +1,25 @@
+# Compiled programs
+/iot_monitor
+/json_test
+/total
+/device
+/pointers
+
+# Object files
+*.o
+
+# Python
+__pycache__/
+.venv/
+venv/
+
+# Environment and secrets
+.env
+.env.*
+
+# Temporary files
+*.log
+*.tmp
+
+# Practice exercises
+/practice/
