@@ -112,6 +112,20 @@ void telemetry_check_alerts(const Device *device)
     {
         printf("HIGH TEMPERATURE!\n");
         printf("Device: %s\n", device->id);
-        printf("Temperature: %.1f\n", device->temperature);
+        printf("Temperature: %.1f C\n", device->temperature);
+    }
+
+    if (device->humidity > 80)
+    {
+        printf("HIGH HUMIDITY!\n");
+        printf("Device: %s\n", device->id);
+        printf("Humidity: %.1f %%\n", device->humidity);
+    }
+
+    if (device->battery < 20)
+    {
+        printf("BATTERY TOO LOW!\n");
+        printf("Device: %s\n", device->id);
+        printf("Battery: %d %%\n", device->battery);
     }
 }
