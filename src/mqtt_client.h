@@ -3,6 +3,15 @@
 
 #include "device.h"
 
-int mqtt_client_start(DeviceStore *store);
+struct mosquitto;
+
+typedef struct
+{
+    struct mosquitto *mosq;
+    DeviceStore *store;
+} MqttClient;
+
+int mqtt_client_start(MqttClient *client, DeviceStore *store);
+void mqtt_client_stop(MqttClient *client);
 
 #endif
