@@ -1,70 +1,46 @@
 #include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
+
 #include "device.h"
-#include "telemetry.h"
+#include "mqtt_client.h"
+
+static volatile sig_atomic_t running = 1;
+
+void handle_sigint(int signal_number)
+{
+    (void)signal_number;
+    running = 0;
+}
 
 int main(void)
 {
     DeviceStore store = {0};
+    MqttClient client = {0};
 
-    const char *json1 =
-        "{"
-        "\"device_id\":\"sensor_01\","
-        "\"temperature\":25.5,"
-        "\"humidity\":60.0,"
-        "\"battery\":85,"
-        "\"timestamp\":1794301200"
-        "}";
+    signal(SIGINT, handle_sigint);
 
-    const char *json2 =
-        "{"
-        "\"device_id\":\"sensor_02\","
-        "\"temperature\":35.0,"
-        "\"humidity\":90.0,"
-        "\"battery\":15,"
-        "\"timestamp\":1794301300"
-        "}";
+    printf("Starting IoT Device Monitor...\n");
 
-    const char *json3 =
-        "{"
-        "\"device_id\":\"sensor_01\","
-        "\"temperature\":29.5,"
-        "\"humidity\":70.0,"
-        "\"battery\":75,"
-        "\"timestamp\":1794301400"
-        "}";
-
-    const char *json4 =
-        "{"
-        "\"device_id\":\"sensor_03\","
-        "\"temperature\":25.0,"
-        "\"humidity\":50.0,"
-        "\"battery\":150,"
-        "\"timestamp\":1794301500"
-        "}";
-
-    const char *json5 =
-        "{"
-        "\"device_id\":\"sensor_03\","
-        "\"temperature\":25.0,"
-        "\"humidity\":50.0,"
-        "\"timestamp\":1794301600.5"
-        "}";
-
-    const char *json6 = "[\"sensor_01\", \"sensor_02\"]";
-
-    telemetry_process(&store, json1);
-    telemetry_process(&store, json2);
-    telemetry_process(&store, json3);
-    telemetry_process(&store, json4);
-    telemetry_process(&store, json5);
-    telemetry_process(&store, json6);
-
-    printf("Total devices: %zu\n", store.count);
-
-    for (size_t i = 0; i < store.count; i++)
+    if (!mqtt_client_start(&client, &store))
     {
-        device_print(&store.devices[i]);
+        printf("Failed to start MQTT client!\n");
+        return 1;
     }
+
+    printf("IoT Device Monitor is running!\n");
+    printf("Press Ctrl+C to stop.\n");
+
+    while (running)
+    {
+        sleep(1);
+    }
+
+    printf("\nShutdown signal received!\n");
+
+    mqtt_client_stop(&client);
+
+    printf("IoT Device Monitor stopped.\n");
 
     return 0;
 }
